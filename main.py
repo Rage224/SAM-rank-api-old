@@ -99,7 +99,6 @@ conn = psycopg2.connect(
 VALID_SESSION = True
 
 SESSION_ID, STEAM_API_KEY = load_constants()
-SESSION_ID = "sdfadsfasdfas";
 
 API_ENDPOINT = "https://psyonix-rl.appspot.com/"
 CALLPROC_ENDPOINT = "callproc105/"
