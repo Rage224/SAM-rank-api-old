@@ -1,8 +1,0 @@
-{
-  "name": "SAM Rank Updater",
-  "description": "Rocket League South American Ranking Updater.",
-  "image": "heroku/python",
-  "repository": "https://github.com/hugogrochau/SAM-rank-updater",
-  "keywords": ["python", "django" ],
-  "addons": [ "heroku-postgresql" ]
-}
