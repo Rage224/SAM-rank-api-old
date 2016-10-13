@@ -54,12 +54,22 @@ def get_steam_name(id):
     return response.json()['response']['players'][0]['personaname'].encode('utf-8')
 
 def get_ranks(platform, id):
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "SessionID" : SESSION_ID
+    }
+
     body = {
         "Proc[]": "GetPlayerSkillSteam" if platform == 0 else "GetPlayerSkillPS4",
         "P0P[]": id
     }
     name = id if platform == 1 else get_steam_name(id) # fetch steam name
-    response = requests.post(API_ENDPOINT + CALLPROC_ENDPOINT, headers=HEADERS, data=body, verify=False)
+    response = requests.post(API_ENDPOINT + CALLPROC_ENDPOINT, headers=headers, data=body, verify=False)
+
+    # Invalid session
+    if (response.text.strip() == "SCRIPT ERROR SessionNotActive:"):
+        return False
+
     lines = response.text.strip().split("\r\n")
     ranks = {"id": id, "platform": platform, "name": name}
     for line in lines[1:]:
@@ -76,7 +86,7 @@ DB_URL = urlparse.urlparse(os.environ["DATABASE_URL"])
 # if not DB_URL:
 #     print("Put the database url in db_url.txt")
 #     quit()
-url = urlparse.urlparse(DB_URL)
+# url = urlparse.urlparse(DB_URL)
 
 conn = psycopg2.connect(
     database=url.path[1:],
@@ -86,16 +96,14 @@ conn = psycopg2.connect(
     port=url.port
 )
 
+VALID_SESSION = True
+
 SESSION_ID, STEAM_API_KEY = load_constants()
+SESSION_ID = "sdfadsfasdfas";
 
 API_ENDPOINT = "https://psyonix-rl.appspot.com/"
 CALLPROC_ENDPOINT = "callproc105/"
 UPDATE_ENDPOINT  = "Population/UpdatePlayerCurrentGame/"
-
-HEADERS = {
-    "Content-Type": "application/x-www-form-urlencoded",
-    "SessionID" : SESSION_ID
-}
 
 PLAYLIST_MAP = {
         "10": "1v1",
@@ -110,7 +118,33 @@ while(True):
     for player in players:
         print("Pulling data for player: " + str(player[1]))
         ranks = get_ranks(int(player[0]), player[1])
+
+        # session is invalid
+        if not ranks:
+            print("Our session was invalidated")
+            VALID_SESSION = False
+            break
+            
         upsert_ranks(ranks)
         print("Player " + str(player[1]) + " updated")
-    time.sleep(60 * 15) # sleep for 15 minutes
+    
+    if VALID_SESSION:
+        print("Finished update, waiting 15 minutes...")
+        time.sleep(60 * 15) # sleep for 15 minutes
+
+    while not VALID_SESSION:
+        print("Trying to get a new session...")
+        NEW_SESSION_ID, _ = load_constants()
+        print(SESSION_ID, NEW_SESSION_ID)
+        if NEW_SESSION_ID != SESSION_ID:
+            print("Got a new session")
+            SESSION_ID = NEW_SESSION_ID
+            VALID_SESSION = True
+            break
+        print("Did not get a new session, trying again in 5 minutes")
+
+        time.sleep(60 * 5) # sleep for 5 minutes
+        
+
+
     
