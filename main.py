@@ -3,6 +3,7 @@ import os
 import psycopg2
 import urlparse
 import requests
+import time
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -69,12 +70,12 @@ def get_ranks(platform, id):
 
 
 urlparse.uses_netloc.append("postgres")
-# url = urlparse.urlparse(os.environ["DATABASE_URL"])
-with open("db_url.txt", "r") as f:
-    DB_URL = f.read().replace('\n', '')
-if not DB_URL:
-    print("Put the database url in db_url.txt")
-    quit()
+DB_URL = urlparse.urlparse(os.environ["DATABASE_URL"])
+# with open("db_url.txt", "r") as f:
+#     DB_URL = f.read().replace('\n', '')
+# if not DB_URL:
+#     print("Put the database url in db_url.txt")
+#     quit()
 url = urlparse.urlparse(DB_URL)
 
 conn = psycopg2.connect(
@@ -103,9 +104,13 @@ PLAYLIST_MAP = {
         "13": "3v3"
 }
 
-players = get_players()
-for player in players:
-    print("Pulling data for player: " + str(player[1]))
-    ranks = get_ranks(int(player[0]), player[1])
-    print(ranks)
-    upsert_ranks(ranks)
+while(True):
+    print("Starting full update...")
+    players = get_players()
+    for player in players:
+        print("Pulling data for player: " + str(player[1]))
+        ranks = get_ranks(int(player[0]), player[1])
+        upsert_ranks(ranks)
+        print("Player " + str(player[1]) + " updated")
+    time.sleep(60 * 15) # sleep for 15 minutes
+    
