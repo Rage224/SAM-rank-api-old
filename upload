@@ -1,0 +1,3 @@
+#! /usr/bin/env bash
+
+scp ranks.txt voidweb@hosted5.nfoservers.com:public/hugo/sam-ranking/ranks.txt
