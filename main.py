@@ -35,6 +35,11 @@ def get_players():
     cur.close()
     return data
 
+def get_headers():
+    return {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "SessionID" : SESSION_ID
+    }
 
 def get_rp_from_mmr(mmr):
     return int(mmr * 20 + 100)
@@ -53,11 +58,16 @@ def get_steam_name(id):
     response = requests.get("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key={0}&steamids={1}".format(STEAM_API_KEY, id))
     return response.json()['response']['players'][0]['personaname'].encode('utf-8')
 
-def get_ranks(platform, id):
-    headers = {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "SessionID" : SESSION_ID
+def keep_alive():
+    headers = get_headers()
+    body = {
+        "PlaylistID": 0,
+        "NumLocalPlayers": 1
     }
+    response = requests.post(API_ENDPOINT + UPDATE_ENDPOINT, headers=headers, data=body, verify=False)
+
+def get_ranks(platform, id):
+    headers = get_headers()
 
     body = {
         "Proc[]": "GetPlayerSkillSteam" if platform == 0 else "GetPlayerSkillPS4",
@@ -80,13 +90,12 @@ def get_ranks(platform, id):
 
 
 urlparse.uses_netloc.append("postgres")
-DB_URL = urlparse.urlparse(os.environ["DATABASE_URL"])
-# with open("db_url.txt", "r") as f:
-#     DB_URL = f.read().replace('\n', '')
-# if not DB_URL:
-#     print("Put the database url in db_url.txt")
-#     quit()
-# url = urlparse.urlparse(DB_URL)
+with open("db_url.txt", "r") as f:
+    DB_URL = f.read().replace('\n', '')
+if not DB_URL:
+    print("Put the database url in db_url.txt")
+    quit()
+url = urlparse.urlparse(DB_URL)
 
 conn = psycopg2.connect(
     database=url.path[1:],
@@ -128,6 +137,8 @@ while(True):
         print("Player " + str(player[1]) + " updated")
     
     if VALID_SESSION:
+        print("Sending keep alive request...")
+        keep_alive()
         print("Finished update, waiting 15 minutes...")
         time.sleep(60 * 15) # sleep for 15 minutes
 
