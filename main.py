@@ -27,9 +27,13 @@ def upsert_ranks(ranks):
     conn.commit()
     cur.close()
 
-def parse_id_file(file):
-    f = open(file, 'r')
-    return [a.strip().split(',') for a in f.readlines()]
+def get_players():
+    cur = conn.cursor()
+    cur.execute("SELECT platform, id FROM player")
+    data = cur.fetchall()
+    cur.close()
+    return data
+
 
 def get_rp_from_mmr(mmr):
     return int(mmr * 20 + 100)
@@ -56,7 +60,7 @@ def get_ranks(platform, id):
     name = id if platform == 1 else get_steam_name(id) # fetch steam name
     response = requests.post(API_ENDPOINT + CALLPROC_ENDPOINT, headers=HEADERS, data=body, verify=False)
     lines = response.text.strip().split("\r\n")
-    ranks = {"id": id, "name": name}
+    ranks = {"id": id, "platform": platform, "name": name}
     for line in lines[1:]:
         parsed_line = urlparse.parse_qs(line)
         rank_obj = extract_rank(parsed_line)
@@ -83,7 +87,6 @@ conn = psycopg2.connect(
 
 SESSION_ID, STEAM_API_KEY = load_constants()
 
-ID_FILE = "IDs.txt"
 API_ENDPOINT = "https://psyonix-rl.appspot.com/"
 CALLPROC_ENDPOINT = "callproc105/"
 UPDATE_ENDPOINT  = "Population/UpdatePlayerCurrentGame/"
@@ -100,13 +103,9 @@ PLAYLIST_MAP = {
         "13": "3v3"
 }
 
-players = parse_id_file(ID_FILE)
+players = get_players()
 for player in players:
-    print("Pulling data for player:" + player[1])
+    print("Pulling data for player: " + str(player[1]))
     ranks = get_ranks(int(player[0]), player[1])
     print(ranks)
     upsert_ranks(ranks)
-
-
-# f = open(OUTPUT_FILE, 'w')
-# f.write(output_str)
