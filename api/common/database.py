@@ -31,6 +31,7 @@ class Database:
             values_str += "'" + str(value) + "'"  + ","
         columns_str += "\"last_update\""
         values_str += "now()"
+        # TODO: pass parameters properly to escape them (test: 76561198065476197)
         cur.execute("INSERT INTO player ({0}) VALUES ({1}) ON CONFLICT (id) DO UPDATE SET ({0}) = ({1})".format(columns_str, values_str))
         self.conn.commit()
         cur.close()
@@ -53,3 +54,9 @@ class Database:
         data = cur.fetchall()
         cur.close()
         return data
+    
+    def update_session(self, session_id):
+        cur = self.conn.cursor()
+        cur.execute("UPDATE constants SET session_id=%s", (session_id))
+        self.conn.commit()
+        cur.close()
