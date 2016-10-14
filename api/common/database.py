@@ -31,7 +31,7 @@ class Database:
             values_str += "'" + str(value) + "'"  + ","
         columns_str += "\"last_update\""
         values_str += "now()"
-        # TODO: pass parameters properly to escape them (test: 76561198065476197)
+        # TODO: pass parameters properly to escape them (test: 76561198065476197, 76561198073518499)
         cur.execute("INSERT INTO player ({0}) VALUES ({1}) ON CONFLICT (id) DO UPDATE SET ({0}) = ({1})".format(columns_str, values_str))
         self.conn.commit()
         cur.close()
