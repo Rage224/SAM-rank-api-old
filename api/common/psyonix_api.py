@@ -22,7 +22,7 @@ def __get_headers(session_id):
     }
 
 def __get_rp_from_mmr(mmr):
-    return int(mmr * 20 + 100)
+    return int(round(mmr * 20 + 100))
 
 def __extract_rank(parsed_line):
     playlist = __PLAYLIST_MAP[parsed_line['Playlist'][0]]
