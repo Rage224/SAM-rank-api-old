@@ -10,7 +10,7 @@ class PS4Player(Resource):
 
         player = {
             'id': id,
-            'platform': 0,
+            'platform': 1,
             'name': id,
         }
         player.update(ranks)
