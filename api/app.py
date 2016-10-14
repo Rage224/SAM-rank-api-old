@@ -25,5 +25,5 @@ api.add_resource(PS4Player, '/player/ps4', '/player/ps4/<string:id>')
 
 
 
-app.run(host="0.0.0.0")
+app.run(host="0.0.0.0", threaded=True)
 
