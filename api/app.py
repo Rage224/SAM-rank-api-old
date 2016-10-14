@@ -14,8 +14,16 @@ globals.database = Database(db_url)
 # set constants
 globals.session_id, globals.steam_api_key = globals.database.get_constants()
 
+@app.after_request
+def headers(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    return response
+
 api.add_resource(Player, '/player', '/player/')
 api.add_resource(SteamPlayer, '/player/steam', '/player/steam/<string:id>')
 api.add_resource(PS4Player, '/player/ps4', '/player/ps4/<string:id>')
+
+
+
 app.run(host="0.0.0.0")
 
