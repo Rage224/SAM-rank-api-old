@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 import os
 import psycopg2
 import urlparse

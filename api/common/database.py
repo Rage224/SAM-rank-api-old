@@ -57,6 +57,6 @@ class Database:
     
     def update_session(self, session_id):
         cur = self.conn.cursor()
-        cur.execute("UPDATE constants SET session_id=%s", (session_id))
+        cur.execute("UPDATE constants SET session_id = %s", (session_id,))
         self.conn.commit()
         cur.close()

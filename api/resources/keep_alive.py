@@ -1,6 +1,6 @@
 from flask_restful import Resource
 import common.globals as globals
-import keep_alive from common.psyonix_api
+from common.psyonix_api import keep_alive 
 
 class KeepAlive(Resource):
     def get(self):

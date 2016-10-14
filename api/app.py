@@ -1,4 +1,4 @@
-from flask import Flask, g
+from flask import Flask
 from flask_restful import Api
 from resources.steam_player import SteamPlayer
 from resources.ps4_player import PS4Player
