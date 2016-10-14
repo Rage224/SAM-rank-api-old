@@ -7,5 +7,6 @@ parser.add_argument('session_id')
 class Session(Resource):
     def post(self):
         args = parser.parse_args()
-        update_session(args['task'])
-        return {"success": "updated session id"}
+        update_session(args['session_id'])
+        globals.session_id = args['session_id']
+        return {"success": "updated session id"}, 200
