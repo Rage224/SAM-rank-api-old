@@ -21,7 +21,7 @@ class SteamPlayer(Resource):
         }
         player.update(ranks)
         globals.database.upsert_player(player)
-        return player, 2000
+        return {"player": player}, 2000
 
     def post(self):
         pass

@@ -3,7 +3,7 @@ import common.globals as globals
 
 class Player(Resource):
     def get(self):
-        return globals.database.get_players(), 200
+        return {"players": globals.database.get_players()}, 200
 
     def post(self):
         pass
