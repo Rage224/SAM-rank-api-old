@@ -1,4 +1,4 @@
-# SAM-rank-updater
+# SAM-rank-updater (outdated)
 Rocket League South American Ranking Updater
 
 # Description
